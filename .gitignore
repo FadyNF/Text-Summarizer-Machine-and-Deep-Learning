@@ -1,3 +1,4 @@
 **/__pycache__/
 
-extended_textrank/saved_model/
+data/bbc/*
+data/cnn/*
