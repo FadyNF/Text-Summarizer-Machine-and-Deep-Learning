@@ -3,6 +3,8 @@ import re
 import nltk
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords, wordnet
+from nltk.tokenize import sent_tokenize
+from difflib import SequenceMatcher
 from nltk.stem import WordNetLemmatizer
 from nltk import pos_tag
 
@@ -13,8 +15,6 @@ nltk.download('wordnet', quiet=True)
 nltk.download('averaged_perceptron_tagger', quiet=True)
 nltk.download('averaged_perceptron_tagger_eng', quiet=True)
 
-
-# ========== TEXT PROCESSING FUNCTIONS ==========
 
 def to_lowercase(text: str) -> str:
     return text.lower()
