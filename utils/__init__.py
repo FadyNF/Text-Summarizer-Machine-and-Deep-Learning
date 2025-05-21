@@ -9,4 +9,6 @@ from .preprocessing import (
     lemmatize_tokens,
     join_tokens,
     basic_preprocess,
+    prepare_labeled_sentences,
+    prepare_labeled_sentences_spacy
 )
