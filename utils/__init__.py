@@ -10,5 +10,5 @@ from .preprocessing import (
     join_tokens,
     basic_preprocess,
     prepare_labeled_sentences,
-    prepare_labeled_sentences_spacy
+    prepare_labeled_sentences_spacy,
 )
