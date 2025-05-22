@@ -11,11 +11,11 @@ from nltk import pos_tag
 from difflib import SequenceMatcher
 
 # Download NLTK resources
-nltk.download("punkt", quiet=True)
-nltk.download("stopwords", quiet=True)
-nltk.download("wordnet", quiet=True)
-nltk.download("averaged_perceptron_tagger", quiet=True)
-nltk.download("averaged_perceptron_tagger_eng", quiet=True)
+nltk.download("punkt")
+nltk.download("stopwords")
+nltk.download("wordnet")
+nltk.download("averaged_perceptron_tagger")
+nltk.download("averaged_perceptron_tagger_eng")
 nlp = spacy.load("en_core_web_sm")
 
 
@@ -201,6 +201,6 @@ def preprocess_document(input_path: str, output_path: str) -> bool:
 # ========== MAIN EXECUTION ==========
 
 if __name__ == "__main__":
-    input_path = "../samples/sample2.txt"
-    output_path = "../samples/preprocessed_text2.txt"
+    input_path = "./samples/sample2.txt"
+    output_path = "./samples/preprocessed_text2.txt"
     preprocess_document(input_path, output_path)
