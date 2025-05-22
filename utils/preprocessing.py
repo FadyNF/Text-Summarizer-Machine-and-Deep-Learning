@@ -200,7 +200,7 @@ def preprocess_document(input_path: str, output_path: str) -> bool:
 
 # ========== MAIN EXECUTION ==========
 
-if __name__ == "__main__":
-    input_path = "../samples/sample2.txt"
-    output_path = "../samples/preprocessed_text2.txt"
-    preprocess_document(input_path, output_path)
+# if __name__ == "__main__":
+#     input_path = "../samples/sample2.txt"
+#     output_path = "../samples/preprocessed_text2.txt"
+#     preprocess_document(input_path, output_path)
