@@ -6,3 +6,4 @@ scikit-learn
 imbalanced-learn
 numpy
 pandas
+tensorflow
