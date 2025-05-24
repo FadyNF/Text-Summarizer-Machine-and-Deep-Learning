@@ -5,3 +5,5 @@ data/cnn/*
 data/imdb/*
 
 .vscode/
+
+notebook backups/

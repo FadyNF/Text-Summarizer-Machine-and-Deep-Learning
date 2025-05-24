@@ -6,4 +6,8 @@ scikit-learn
 imbalanced-learn
 numpy
 pandas
+<<<<<<< HEAD
 tensorflow
+=======
+torch
+>>>>>>> omneya-new-branch
