@@ -39,7 +39,7 @@ class KNNExtractiveSummarizer:
             n_iter=n_iter,
             scoring=scoring,
             cv=3,
-            verbose=2,
+            verbose=0,
             random_state=self.random_state,
             n_jobs=1,
         )
