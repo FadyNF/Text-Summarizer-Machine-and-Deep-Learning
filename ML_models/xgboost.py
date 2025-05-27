@@ -4,6 +4,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import classification_report, accuracy_score
 from xgboost import XGBClassifier
+from rouge import Rouge
 
 class XGBoostClassifierModel:
     def __init__(self, dataset_name, df):
@@ -22,24 +23,47 @@ class XGBoostClassifierModel:
         # Vectorize text
         self.X_tfidf = self.vectorizer.fit_transform(self.X)
 
-        # Train/test split
-        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
-            self.X_tfidf, self.y, test_size=0.2, random_state=42
+        # Split into train (80%), val (10%), test (10%)
+        X_temp, self.X_test, y_temp, self.y_test = train_test_split(
+            self.X_tfidf, self.y, test_size=0.1, random_state=42, stratify=self.y
+        )
+        self.X_train, self.X_val, self.y_train, self.y_val = train_test_split(
+            X_temp, y_temp, test_size=0.1111, random_state=42, stratify=y_temp
         )
 
         # Train model
         self.model.fit(self.X_train, self.y_train)
 
         # Predict
+        y_train_pred = self.model.predict(self.X_train)
+        y_val_pred = self.model.predict(self.X_val)
         self.y_pred = self.model.predict(self.X_test)
 
-        # Metrics
-        train_acc = accuracy_score(self.y_train, self.model.predict(self.X_train))
+        # Accuracy metrics
+        train_acc = accuracy_score(self.y_train, y_train_pred)
+        val_acc = accuracy_score(self.y_val, y_val_pred)
         test_acc = accuracy_score(self.y_test, self.y_pred)
 
         print(f"\nTrain Accuracy: {train_acc:.4f}")
+        print(f"Validation Accuracy: {val_acc:.4f}")
         print(f"Test Accuracy: {test_acc:.4f}")
-        print("\nClassification Report:\n", classification_report(self.y_test, self.y_pred))
+        print("\nClassification Report (Test Set):\n", classification_report(self.y_test, self.y_pred))
+
+        # ROUGE score
+        self.compute_rouge_scores()
+
+    def compute_rouge_scores(self):
+        rouge = Rouge()
+        references = self.y_test.astype(str).tolist()
+        predictions = self.y_pred.astype(str).tolist()
+
+        try:
+            scores = rouge.get_scores(predictions, references, avg=True)
+            print("\nAverage ROUGE Scores:")
+            for key, val in scores.items():
+                print(f"{key.upper()}: Precision: {val['p']:.4f}, Recall: {val['r']:.4f}, F1: {val['f']:.4f}")
+        except Exception as e:
+            print(f"⚠️ Could not compute ROUGE scores: {e}")
 
     def show_classification_predictions(self, n=5):
         print(f"\n\n=== Classification Predictions for {self.dataset_name} ===")

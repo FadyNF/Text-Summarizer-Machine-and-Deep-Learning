@@ -22,9 +22,16 @@ class BiLSTMSummarizer:
                 "preprocessed_sentence"
             ].transform(lambda x: " ".join(x[self.df.loc[x.index, "label"] == 1]))
 
-        self.train_df, self.test_df = train_test_split(
-            self.df, test_size=0.2, random_state=42
-        )
+        # First split into train and temp (80% train, 20% temp)
+        train_df, temp_df = train_test_split(self.df, test_size=0.2, random_state=42)
+
+        # Then split temp into 50% validation, 50% test (i.e., 10% each of original)
+        val_df, test_df = train_test_split(temp_df, test_size=0.5, random_state=42)
+
+        self.train_df = train_df
+        self.val_df = val_df
+        self.test_df = test_df
+
         self.vocab = Vocab(self.train_df["preprocessed_sentence"].tolist())
 
         self.train_loader = DataLoader(

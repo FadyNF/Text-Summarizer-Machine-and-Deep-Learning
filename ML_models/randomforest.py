@@ -6,6 +6,7 @@ from sklearn.metrics import classification_report, accuracy_score
 from sklearn.utils import resample
 from scipy.sparse import hstack, csr_matrix
 from rouge import Rouge
+import numpy as np
 
 
 class RandomForestClassifierModel:
@@ -61,16 +62,18 @@ class RandomForestClassifierModel:
         X_all = hstack([X_text, csr_matrix(X_additional)]).tocsr()
         y = df['label'].values
 
-        X_train, X_test, y_train, y_test = train_test_split(
-            X_all, y, test_size=0.3, random_state=42
-        )
+        # Split 80% train, 10% val, 10% test
+        X_temp, X_test, y_temp, y_test = train_test_split(X_all, y, test_size=0.10, random_state=42, stratify=y)
+        X_train, X_val, y_train, y_val = train_test_split(X_temp, y_temp, test_size=0.1111, random_state=42, stratify=y_temp)
+        # 0.1111 of 90% = ~10%
 
         self.clf.fit(X_train, y_train)
-        y_pred = self.clf.predict(X_test)
 
         print(f"\nTrain Accuracy: {self.clf.score(X_train, y_train):.4f}")
-        print(f"Test Accuracy: {accuracy_score(y_test, y_pred):.4f}")
-        print("\nClassification Report:")
+        print(f"Validation Accuracy: {self.clf.score(X_val, y_val):.4f}")
+        print(f"Test Accuracy: {self.clf.score(X_test, y_test):.4f}")
+        print("\nTest Classification Report:")
+        y_pred = self.clf.predict(X_test)
         print(classification_report(y_test, y_pred))
 
     def show_predictions(self, n=5):
@@ -78,6 +81,8 @@ class RandomForestClassifierModel:
         article_ids = sorted(self.df['article_id'].unique())[:n]
 
         print("\n=== Article-wise Summary Evaluation ===")
+        rouge_1_scores, rouge_2_scores, rouge_l_scores = [], [], []
+
         for article_id in article_ids:
             article_df = self.df[self.df['article_id'] == article_id].copy()
             article_df = self._add_features(article_df)
@@ -105,5 +110,19 @@ class RandomForestClassifierModel:
                     scores = rouge.get_scores(gen_summary, ref_summary)[0]
                     rounded_scores = {k: {m: round(v, 4) for m, v in scores[k].items()} for k in scores}
                     print(f"ROUGE Scores: {rounded_scores}")
+
+                    rouge_1_scores.append(scores['rouge-1']['f'])
+                    rouge_2_scores.append(scores['rouge-2']['f'])
+                    rouge_l_scores.append(scores['rouge-l']['f'])
+
                 except Exception as e:
                     print(f"Error computing ROUGE: {e}")
+
+        # Show average ROUGE scores
+        if rouge_1_scores:
+            print("\n=== Average ROUGE Scores ===")
+            print(f"ROUGE-1-F: {np.mean(rouge_1_scores):.4f}")
+            print(f"ROUGE-2-F: {np.mean(rouge_2_scores):.4f}")
+            print(f"ROUGE-L-F: {np.mean(rouge_l_scores):.4f}")
+        else:
+            print("\nNo valid summaries for ROUGE evaluation.")

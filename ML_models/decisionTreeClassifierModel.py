@@ -83,6 +83,8 @@ class DecisionTreeClassifierModel:
         rouge = Rouge()
         article_ids = sorted(self.df['article_id'].unique())[:n]
 
+        all_rouge_scores = []
+
         print("\n=== Article-wise Summary Evaluation ===")
         for article_id in article_ids:
             article_df = self.df[self.df['article_id'] == article_id].copy()
@@ -109,7 +111,23 @@ class DecisionTreeClassifierModel:
             else:
                 try:
                     scores = rouge.get_scores(gen_summary, ref_summary)[0]
-                    rounded_scores = {k: {m: round(v, 4) for m, v in scores[k].items()} for k in scores}
-                    print(f"ROUGE Scores: {rounded_scores}")
+                    all_rouge_scores.append(scores)
                 except Exception as e:
                     print(f"Error computing ROUGE: {e}")
+
+        # Compute average ROUGE scores
+        if all_rouge_scores:
+            avg_scores = {}
+            for metric in ['rouge-1', 'rouge-2', 'rouge-l']:
+                avg_scores[metric] = {
+                    k: round(
+                        sum(score[metric][k] for score in all_rouge_scores) / len(all_rouge_scores), 4
+                    )
+                    for k in ['p', 'r', 'f']
+                }
+
+            print("\n=== Average ROUGE Scores ===")
+            for metric, values in avg_scores.items():
+                print(f"{metric.upper()}: Precision: {values['p']}, Recall: {values['r']}, F1: {values['f']}")
+        else:
+            print("\nCould not compute average ROUGE scores (no valid articles).")
