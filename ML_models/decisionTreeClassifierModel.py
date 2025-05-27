@@ -59,17 +59,25 @@ class DecisionTreeClassifierModel:
         X_all = hstack([X_text, csr_matrix(X_additional)]).tocsr()
         y = df['label'].values
 
-        X_train, X_test, y_train, y_test = train_test_split(
-            X_all, y, test_size=0.3, random_state=42
+        # 80% train, 10% val, 10% test
+        X_train, X_temp, y_train, y_temp = train_test_split(
+            X_all, y, test_size=0.2, random_state=42
+        )
+        X_val, X_test, y_val, y_test = train_test_split(
+            X_temp, y_temp, test_size=0.5, random_state=42
         )
 
         self.clf.fit(X_train, y_train)
-        y_pred = self.clf.predict(X_test)
+
+        y_pred_test = self.clf.predict(X_test)
+        y_pred_val = self.clf.predict(X_val)
 
         print(f"\nTrain Accuracy: {self.clf.score(X_train, y_train):.4f}")
-        print(f"Test Accuracy: {accuracy_score(y_test, y_pred):.4f}")
-        print("\nClassification Report:")
-        print(classification_report(y_test, y_pred))
+        print(f"Validation Accuracy: {accuracy_score(y_val, y_pred_val):.4f}")
+        print(f"Test Accuracy: {accuracy_score(y_test, y_pred_test):.4f}")
+        
+        print("\nClassification Report (Test Set):")
+        print(classification_report(y_test, y_pred_test))
 
     def show_predictions(self, n=5):
         rouge = Rouge()
