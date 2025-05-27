@@ -7,7 +7,6 @@ from imblearn.pipeline import Pipeline as ImbPipeline
 from imblearn.over_sampling import RandomOverSampler
 from rouge import Rouge
 
-
 class KNNExtractiveSummarizer:
     def __init__(self, random_state=42):
         self.random_state = random_state

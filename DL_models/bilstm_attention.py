@@ -66,7 +66,49 @@ class BiLSTMSummarizer:
 
         print(f"Training completed in {time.time()-start_time:.2f}s")
 
+    def evaluate_split(self, split="test"):
+        if split == "train":
+            df = self.train_df
+        elif split == "val":
+            df = self.val_df
+        else:
+            df = self.test_df
+
+        loader = DataLoader(
+            ExtractiveDataset(df),
+            batch_size=32,
+            collate_fn=lambda b: collate_fn(b, self.vocab),
+        )
+
+        self.model.eval()
+        all_probs, all_preds = [], []
+        with torch.no_grad():
+            for inputs, labels in loader:
+                inputs = inputs.to(self.device)
+                outputs = torch.sigmoid(self.model(inputs))
+                all_probs.extend(outputs.cpu().tolist())
+                all_preds.extend((outputs > 0.5).int().cpu().tolist())
+
+        y_true = df["label"].values
+        y_pred = [1 if p > 0.5 else 0 for p in all_probs]
+        accuracy = (y_true == y_pred).mean()
+        print(f"{split.capitalize()} Accuracy: {accuracy:.4f}")
+
+        return accuracy
+
+
     def evaluate(self):
+        
+         # Evaluate on test set as before
+        print("\n--- Evaluating on Test Set ---")
+        self.evaluate_split("test")
+
+        # Also evaluate on train and validation sets
+        print("\n--- Evaluating on Train Set ---")
+        self.evaluate_split("train")
+
+        print("\n--- Evaluating on Validation Set ---")
+        self.evaluate_split("val")
         test_loader = DataLoader(
             ExtractiveDataset(self.test_df),
             batch_size=32,

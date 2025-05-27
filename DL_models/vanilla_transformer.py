@@ -116,8 +116,9 @@ def summarize_and_evaluate(article, summary, model, top_k=3):
 
 def run_pipeline(df):
     print("Splitting data (70/15/15)...")
-    train_df, temp_df = train_test_split(df, test_size=0.3, random_state=42)
+    train_df, temp_df = train_test_split(df, test_size=0.2, random_state=42)
     val_df, test_df = train_test_split(temp_df, test_size=0.5, random_state=42)
+    print(f"Train size: {len(train_df)}, Validation size: {len(val_df)}, Test size: {len(test_df)}")
 
     print("Preparing train data...")
     X_train, y_train = prepare_data(train_df)
